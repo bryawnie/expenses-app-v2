@@ -78,7 +78,7 @@ Sirve esta carpeta como sitio estático (la PWA requiere HTTPS, salvo en `localh
 **Despliegue en GitHub Pages**
 
 1. En el repositorio: **Settings → Pages → Build and deployment**, *Source*: **Deploy from a branch**, rama `main`, carpeta `/ (root)`. (Pages requiere que el repo sea público, salvo en planes de pago.)
-2. Tras el primer despliegue, la app queda en `https://bryawnie.github.io/expenses-app-v2/`.
+2. Tras el primer despliegue, la app queda en `https://www.bry.cl/expenses-app-v2/` (GitHub usa el dominio `www.bry.cl` configurado en tu sitio personal `bryawnie.github.io`). Abre siempre esa dirección con `https://`: la PWA solo se instala con HTTPS.
 3. Cada `git push` a `main` la actualiza. Si cambias archivos de `js/` o `css/`, sube también el número de `CACHE` en `sw.js` para que el teléfono descargue la versión nueva.
 
 Luego, en la app, abre **Ajustes → Conexión con tu planilla**, pega la URL y el token y toca **Guardar y probar conexión**.
