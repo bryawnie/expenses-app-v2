@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="theme-color"
+      content="#fcfcfb"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#1a1a19"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Gastos</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon-192.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header id="top">
+      <h1 id="title">Registrar</h1>
+      <button id="syncBtn" data-s="ok" aria-label="Sincronizar ahora">
+        <span id="syncDot"></span><span id="syncTxt">Sincronizado</span>
+      </button>
+    </header>
+    <main id="view"></main>
+    <datalist id="names"></datalist>
+    <nav id="tabs">
+      <div class="in">
+        <button data-act="tab" data-tab="registrar">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 8v8M8 12h8" /></svg
+          >Registrar
+        </button>
+        <button data-act="tab" data-tab="movimientos">
+          <svg viewBox="0 0 24 24">
+            <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" /></svg
+          >Movimientos
+        </button>
+        <button data-act="tab" data-tab="resumen">
+          <svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7" /></svg
+          >Resumen
+        </button>
+        <button data-act="tab" data-tab="tarjetas">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="5" width="18" height="14" rx="2.5" />
+            <path d="M3 10h18M7 15h4" /></svg
+          >Tarjetas
+        </button>
+        <button data-act="tab" data-tab="ajustes">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+            /></svg
+          >Ajustes
+        </button>
+      </div>
+    </nav>
+    <div id="overlay">
+      <div id="sheet" role="dialog" aria-modal="true"></div>
+    </div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="js/utils.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/form.js"></script>
+    <script src="js/registrar.js"></script>
+    <script src="js/movimientos.js"></script>
+    <script src="js/edicion.js"></script>
+    <script src="js/resumen.js"></script>
+    <script src="js/tarjetas.js"></script>
+    <script src="js/ajustes.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
