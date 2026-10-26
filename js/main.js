@@ -34,7 +34,7 @@ const ACTIONS = {
   },
 
   // Tarjetas
-  card(el) { S.card = { name: el.dataset.c, p: 1 }; render(); },
+  card(el) { S.card = { name: el.dataset.c, p: 0 }; render(); },
   pprev() { S.card.p++; render(); },
   pnext() {
     if (S.card.p <= 0) return;

@@ -24,44 +24,12 @@ function periodFor(card, offset) {
   return { start, end, open: offset === 0 };
 }
 
-function persistChecks() {
-  store.set('checks', S.checks);
-}
-
-function renderTarjetas(view) {
-  const cards = creditCards();
-  if (!cards.length) {
-    view.innerHTML = `<div class="card empty">No hay tarjetas de crédito marcadas.<br>Ve a <b>Ajustes → Cuentas</b>, elige “Crédito” para tus tarjetas e indica su día de cierre.<br><br><button class="ghost" data-act="tab" data-tab="ajustes">Ir a Ajustes</button></div>`;
-    return;
-  }
-  if (!cards.includes(S.card.name)) S.card = { name: cards[0], p: 1 };
-
-  const name = S.card.name;
-  const config = accountConfig(name);
-  const rows = viewRows().filter(r => r.c === name);
-  const totalDebt = -rows.reduce((sum, r) => sum + r.a, 0);
-
-  let html = `<div class="scroller">${cards
-    .map(c => `<button class="pill ${c === name ? 'on' : ''}" data-act="card" data-c="${esc(c)}">${esc(c)}</button>`)
-    .join('')}</div>`;
-
-  const debtNote = totalDebt < 0
-    ? `Saldo a favor de ${money(-totalDebt)}`
-    : 'Suma de todos los movimientos de esta tarjeta';
-  html += `<div class="card"><div class="muted small">Deuda según tu planilla</div><div class="hero">${money(Math.max(totalDebt, 0))}</div><div class="muted small">${debtNote}</div></div>`;
-
-  if (!config.closeDay) {
-    html += `<div class="banner">Indica el día de cierre de ${esc(name)} en <b>Ajustes → Cuentas</b> para cuadrar el estado de cuenta.</div>`;
-    view.innerHTML = html;
-    return;
-  }
-
-  const period = periodFor(name, S.card.p);
+/** Movimientos de una tarjeta dentro de un período y sus totales. */
+function periodTotals(rows, period) {
   const periodRows = rows
     .filter(r => r.d >= period.start && r.d <= period.end)
     .sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
 
-  // Totales del período
   let compras = 0;   // compras normales
   let devol = 0;     // devoluciones
   let pagos = 0;     // pagos recibidos desde otra cuenta (traspaso entrante)
@@ -76,7 +44,38 @@ function renderTarjetas(view) {
       devol += r.a;
     }
   });
-  const facturado = compras + cargosTr - devol;
+  // Lo que el banco factura: el uso del período, sin descontar los pagos.
+  return { periodRows, compras, devol, pagos, cargosTr, facturado: compras + cargosTr - devol };
+}
+
+function persistChecks() {
+  store.set('checks', S.checks);
+}
+
+function renderTarjetas(view) {
+  const cards = creditCards();
+  if (!cards.length) {
+    view.innerHTML = `<div class="card empty">No hay tarjetas de crédito marcadas.<br>Ve a <b>Ajustes → Cuentas</b>, elige “Crédito” para tus tarjetas e indica su día de cierre.<br><br><button class="ghost" data-act="tab" data-tab="ajustes">Ir a Ajustes</button></div>`;
+    return;
+  }
+  if (!cards.includes(S.card.name)) S.card = { name: cards[0], p: 0 };
+
+  const name = S.card.name;
+  const config = accountConfig(name);
+  const rows = viewRows().filter(r => r.c === name);
+
+  let html = `<div class="scroller">${cards
+    .map(c => `<button class="pill ${c === name ? 'on' : ''}" data-act="card" data-c="${esc(c)}">${esc(c)}</button>`)
+    .join('')}</div>`;
+
+  if (!config.closeDay) {
+    html += `<div class="banner">Indica el día de cierre de ${esc(name)} en <b>Ajustes → Cuentas</b> para cuadrar el estado de cuenta.</div>`;
+    view.innerHTML = html;
+    return;
+  }
+
+  const period = periodFor(name, S.card.p);
+  const { periodRows, compras, devol, pagos, cargosTr, facturado } = periodTotals(rows, period);
 
   // Comparación con el estado de cuenta que ingresó el usuario
   const statementKey = `${name}|${period.end}`;
@@ -116,16 +115,26 @@ function renderTarjetas(view) {
     ? ''
     : `<label class="f" style="margin-top:10px">Total del estado de cuenta<input class="inp" id="stmt" inputmode="numeric" placeholder="Ej: ${clp.format(Math.round(facturado / 1000) * 1000 || 100000)}" value="${hasStatement ? clp.format(statement) : ''}" data-key="${esc(statementKey)}"></label>`;
 
+  // El número destacado es el uso del período (sin descontar pagos), que es lo que el banco factura.
+  const heroLabel = period.open ? 'Uso desde el último cierre' : 'Facturado en este cierre';
+  const heroNote = period.open
+    ? `Compras y cargos desde el cierre del ${dayMonth(addDays(period.start, -1))}, sin descontar tus pagos`
+    : 'Compras y cargos del período, sin descontar tus pagos';
+
   html += `<div class="card">
     <div class="monthnav">
       <button data-act="pprev" aria-label="Período anterior">◀</button>
       <b style="text-align:center">${period.open ? 'Período abierto' : 'Cierre ' + dayMonth(period.end)}<div class="muted small" style="font-weight:400">${dayMonth(period.start)} – ${dayMonth(period.end)}</div></b>
       <button data-act="pnext" aria-label="Período siguiente" ${S.card.p <= 0 ? 'disabled' : ''}>▶</button>
     </div>
-    <div class="line2"><span>Compras y cargos</span><b>${money(compras + cargosTr)}</b></div>
-    ${devol ? `<div class="line2"><span>Devoluciones</span><b>${money(-devol)}</b></div>` : ''}
-    <div class="line2" style="border-top:1px solid var(--line);margin-top:4px;padding-top:9px"><span><b>Facturado según planilla</b></span><b>${money(facturado)}</b></div>
-    ${pagos ? `<div class="line2"><span class="muted">Pagos abonados en el período</span><b>${money(pagos)}</b></div>` : ''}${dueHTML}
+    <div class="muted small" style="margin-top:10px">${heroLabel}</div>
+    <div class="hero">${money(facturado)}</div>
+    <div class="muted small">${heroNote}</div>
+    <div style="margin-top:12px">
+      <div class="line2"><span>Compras y cargos</span><b>${money(compras + cargosTr)}</b></div>
+      ${devol ? `<div class="line2"><span>Devoluciones</span><b>${money(-devol)}</b></div>` : ''}
+      ${pagos ? `<div class="line2"><span class="muted">Pagos abonados (no se restan)</span><b>${money(pagos)}</b></div>` : ''}${dueHTML}
+    </div>
     ${statementInput}
     <div style="margin-top:10px">${badge}</div>
   </div>`;

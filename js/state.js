@@ -18,7 +18,7 @@ const S = {
   err: '',
   lastSync: 0,
   filter: { acct: '', cat: '', q: '' },   // filtros de Movimientos
-  card: { name: '', p: 1 },               // tarjeta y período elegidos (p: 0 = abierto, 1 = último cerrado…)
+  card: { name: '', p: 0 },               // tarjeta y período elegidos (p: 0 = abierto, 1 = último cerrado…)
   form: null,                             // borrador del formulario de Registrar
   listRows: []                            // filas mostradas en Movimientos (para editar por índice)
 };
